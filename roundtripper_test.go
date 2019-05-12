@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -30,9 +29,6 @@ func TestRoundTripper(t *testing.T) {
 	require.Nil(t, err)
 	defer resp.Body.Close()
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	written, err := io.Copy(ioutil.Discard, resp.Body)
-	require.Nil(t, err)
-	assert.Equal(t, resp.ContentLength, written)
 
 	req, err = http.NewRequest(http.MethodGet, server.URL, nil)
 	require.Nil(t, err)

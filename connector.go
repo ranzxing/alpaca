@@ -10,21 +10,21 @@ import (
 	"net/http"
 )
 
-type roundTripper struct {
+type connector struct {
 	conn   net.Conn
 	reader *bufio.Reader
 }
 
-func newRoundTripper(network, address string) (*roundTripper, error) {
+func newConnector(network, address string) (*connector, error) {
 	conn, err := net.Dial(network, address)
 	if err != nil {
 		return nil, err
 	}
 	rd := bufio.NewReader(conn)
-	return &roundTripper{conn, rd}, nil
+	return &connector{conn, rd}, nil
 }
 
-func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+func (rt *connector) RoundTrip(req *http.Request) (*http.Response, error) {
 	if rt.conn == nil {
 		return nil, errors.New("connection closed, can't send request")
 	}
@@ -46,12 +46,12 @@ func (rt *roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	return resp, err
 }
 
-func (rt *roundTripper) hijack() net.Conn {
+func (rt *connector) hijack() net.Conn {
 	rt.conn = nil
 	return rt.conn
 }
 
-func (rt *roundTripper) Close() {
+func (rt *connector) Close() {
 	if rt.conn != nil {
 		rt.conn.Close()
 		rt.conn = nil
